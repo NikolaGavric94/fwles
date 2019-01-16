@@ -1,0 +1,94 @@
+version: "3"
+services:
+  app:
+    build:
+      context: docker
+      dockerfile: Dockerfile
+    working_dir: /var/www
+    networks:
+      - websockets_network
+    environment:
+      DB_HOST: mysql
+      DB_DATABASE: websocket_api
+      DB_USERNAME: websocket_bot
+    volumes:
+      - .:/var/www
+
+  web:
+    image: nginx:alpine
+    restart: unless-stopped
+    working_dir: /var/www
+    networks:
+      - websockets_network
+    depends_on:
+      - app
+    volumes:
+      - .:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+    ports:
+      - 80:80
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    networks:
+      - websockets_network
+    depends_on:
+      - app
+    ports:
+      - 6379:6379
+
+  mysql:
+    image: mysql:5.7
+    restart: unless-stopped
+    volumes:
+      - db:/var/lib/mysql
+      - ./docker/mysql:/docker-entrypoint-initdb.d
+    depends_on:
+        - app
+    networks:
+      - websockets_network
+    environment:
+      MYSQL_DATABASE: websocket_api
+      MYSQL_USER: websocket_bot
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+    ports:
+      - 3306:3306
+
+  echo_server:
+    build:
+      context: docker/laravel-echo
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    working_dir: /var/www
+    networks:
+      - websockets_network
+    depends_on:
+      - redis
+      - app
+    links:
+      - app
+    volumes:
+      - ./docker/laravel-echo:/var/www
+    ports:
+      - 6001:6001
+
+  queue:
+    build:
+      context: docker/laravel-echo/queue
+      dockerfile: Dockerfile
+    working_dir: /var/www/html
+    restart: on-failure
+    volumes:
+      - ./:/var/www
+    environment:
+      CONTAINER_ROLE: queue
+    depends_on:
+      - app
+      - redis
+      - mysql
+volumes:
+  db:
+networks:
+  websockets_network:
