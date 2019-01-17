@@ -3,8 +3,8 @@ FROM php:7.2-fpm-alpine
 RUN apk update && apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS imagemagick-dev libtool \
     libmcrypt-dev libpng-dev git zip unzip shadow \
     && pecl install imagick mcrypt-1.0.1 xdebug \
-    && docker-php-ext-enable imagick mcrypt xdebug \
-    && docker-php-ext-install pdo pdo_mysql mbstring gd \
+    && docker-php-ext-install pdo pdo_mysql mbstring gd mysqli \
+    && docker-php-ext-enable pdo pdo_mysql mysqli mbstring gd imagick mcrypt xdebug \
     && apk del libtool \
     && rm -rf /tmp/* /var/cache/apk/*
 

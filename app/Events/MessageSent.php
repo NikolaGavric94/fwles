@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -45,5 +46,24 @@ class MessageSent implements ShouldBroadcast
     public function broadcastOn()
     {
         return new Channel('chat');
+    }
+
+    /**
+     * Set the event name
+     *
+     * @return string
+     */
+    public function broadcastAs() {
+        return 'chatroom';
+    }
+
+    /**
+     * @return array
+     */
+    public function broadcastWith()
+    {
+        return [
+            'message' => $this->message
+        ];
     }
 }

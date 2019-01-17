@@ -24,7 +24,7 @@
     <script type="text/javascript">
         $(document).ready(function() {
             Echo.channel('chat')
-                .listen('MessageSent', (e) => {
+                .listen('.chatroom', (e) => {
                     console.log(e.message);
                 });
             console.info('loaded');

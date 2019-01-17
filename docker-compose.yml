@@ -38,6 +38,21 @@ services:
     ports:
       - 6379:6379
 
+  queue:
+    build:
+      context: docker/laravel-echo/queue
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      CONTAINER_ROLE: queue
+    networks:
+      - websockets_network
+    depends_on:
+      - app
+      - mysql
+    volumes:
+      - .:/var/www
+
   mysql:
     image: mysql:5.7
     restart: unless-stopped
@@ -67,27 +82,10 @@ services:
     depends_on:
       - redis
       - app
-    links:
-      - app
     volumes:
       - ./docker/laravel-echo:/var/www
     ports:
       - 6001:6001
-
-  queue:
-    build:
-      context: docker/laravel-echo/queue
-      dockerfile: Dockerfile
-    working_dir: /var/www/html
-    restart: on-failure
-    volumes:
-      - ./:/var/www
-    environment:
-      CONTAINER_ROLE: queue
-    depends_on:
-      - app
-      - redis
-      - mysql
 volumes:
   db:
 networks:

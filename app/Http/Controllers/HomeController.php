@@ -18,6 +18,11 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
+    public function welcome()
+    {
+        return view('welcome');
+    }
+
     /**
      * Show the application dashboard.
      *
@@ -30,7 +35,7 @@ class HomeController extends Controller
 
     public function send()
     {
-        ProcessMessage::dispatch()->onQueue('chat')->onConnection('database');
+        event(new MessageSent('This is a test message!'));
 
         return response()->json('Successfully sent! Check logs');
     }
