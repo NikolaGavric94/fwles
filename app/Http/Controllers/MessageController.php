@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageSent;
 use App\Message;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,8 @@ class MessageController extends Controller
      */
     public function index()
     {
-        //
+        $messages = Message::all();
+        return view('messages.home', compact('messages'));
     }
 
     /**
@@ -38,6 +40,8 @@ class MessageController extends Controller
         $message = new Message;
         $message->message = $request->get('message');
         $message->save();
+
+        event(new MessageSent($message->message));
 
         return response()->json(compact('message'));
     }
