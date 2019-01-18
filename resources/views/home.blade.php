@@ -8,13 +8,9 @@
                 <div class="card-header">Dashboard</div>
 
                 <div class="card-body">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
-                    You are logged in!
+                    @foreach($messages as $message)
+                        <p>{{ $message->message }}</p>
+                    @endforeach
                 </div>
             </div>
         </div>
